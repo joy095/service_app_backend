@@ -1,11 +1,9 @@
 services:
   - type: web
-    name: api_gateway
+    name: api-gateway
     env: docker
     plan: free
     dockerfilePath: ./api_gateway/Dockerfile
-    buildCommand: ""
-    startCommand: ""
     envVars:
       - key: IDENTITY_SERVICE_URL
         value: ${IDENTITY_SERVICE_URL}
@@ -13,16 +11,12 @@ services:
         value: ${IMAGE_SERVICE_URL}
       - key: ALLOWED_ORIGINS
         value: ${ALLOWED_ORIGINS}
-    ports:
-      - 8080
 
   - type: web
-    name: identity_service
+    name: identity-service
     env: docker
     plan: free
     dockerfilePath: ./identity_service/Dockerfile
-    buildCommand: ""
-    startCommand: ""
     envVars:
       - key: DATABASE_URL
         value: ${DATABASE_URL}
@@ -52,31 +46,21 @@ services:
         value: ${WORD_FILTER_SERVICE_URL}
       - key: ALLOWED_ORIGINS
         value: ${ALLOWED_ORIGINS}
-    ports:
-      - 8081
 
   - type: web
-    name: word_service
+    name: word-service
     env: docker
     plan: free
     dockerfilePath: ./word_filter_service/Dockerfile
-    buildCommand: ""
-    startCommand: ""
     envVars:
       - key: ALLOWED_ORIGINS
         value: ${ALLOWED_ORIGINS}
-    ports:
-      - 8082
 
   - type: web
-    name: image_service
+    name: image-service
     env: docker
     plan: free
     dockerfilePath: ./image_check/Dockerfile
-    buildCommand: ""
-    startCommand: ""
     envVars:
       - key: ALLOWED_ORIGINS
         value: ${ALLOWED_ORIGINS}
-    ports:
-      - 8083
