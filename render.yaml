@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: api-gateway
+    name: api_gateway
     env: docker
     plan: free
     dockerfilePath: ./api_gateway/Dockerfile
@@ -13,7 +13,7 @@ services:
         value: ${ALLOWED_ORIGINS}
 
   - type: web
-    name: identity-service
+    name: identity_service
     env: docker
     plan: free
     dockerfilePath: ./identity_service/Dockerfile
@@ -48,7 +48,7 @@ services:
         value: ${ALLOWED_ORIGINS}
 
   - type: web
-    name: word-service
+    name: word_service
     env: docker
     plan: free
     dockerfilePath: ./word_filter_service/Dockerfile
@@ -57,7 +57,7 @@ services:
         value: ${ALLOWED_ORIGINS}
 
   - type: web
-    name: image-service
+    name: image_service
     env: docker
     plan: free
     dockerfilePath: ./image_check/Dockerfile
