@@ -1,6 +1,6 @@
-FROM python:3.10-slim
+FROM python:3.12-alpine
 
-WORKDIR /app/image_check
+WORKDIR /app
 
 # Install dependencies
 COPY ./requirements.txt .

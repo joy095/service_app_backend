@@ -1,18 +1,21 @@
 FROM golang:1.24-alpine AS builder
 
-WORKDIR /app/identity_service
+WORKDIR /app
 
-# Copy go.mod and go.sum to cache dependencies
-COPY ./go.mod ./go.sum ./
+COPY go.mod go.sum ./
+
 RUN go mod download
 
-# Copy the rest of the code
 COPY . .
 
-# Build the Go application
-RUN go build -o main cmd/main.go
+RUN go build -o main ./cmd/main.go
 
-EXPOSE 8081
+FROM alpine:latest
 
-# Run the application
+WORKDIR /root/
+
+COPY --from=builder /app/main .
+
+EXPOSE 8082
+
 CMD ["./main"]
