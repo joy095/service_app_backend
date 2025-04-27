@@ -1,31 +1,29 @@
 services:
-  - name: api-gateway
-    type: web
+  - type: web
+    name: api_gateway
     env: docker
-    build:
-      dockerfilePath: api_gateway/Dockerfile
+    plan: free
+    dockerfilePath: ./api_gateway/Dockerfile
+    buildCommand: ""
+    startCommand: ""
     envVars:
-      - key: PORT
-        value: ${PORT}
       - key: IDENTITY_SERVICE_URL
         value: ${IDENTITY_SERVICE_URL}
       - key: IMAGE_SERVICE_URL
         value: ${IMAGE_SERVICE_URL}
       - key: ALLOWED_ORIGINS
         value: ${ALLOWED_ORIGINS}
-    dependsOn:
-      - identity-service
-      - image-service
-      - word-service
+    ports:
+      - 8080
 
-  - name: identity-service
-    type: web
+  - type: web
+    name: identity_service
     env: docker
-    build:
-      dockerfilePath: identity_service/Dockerfile
+    plan: free
+    dockerfilePath: ./identity_service/Dockerfile
+    buildCommand: ""
+    startCommand: ""
     envVars:
-      - key: PORT
-        value: ${PORT}
       - key: DATABASE_URL
         value: ${DATABASE_URL}
       - key: REDIS_HOST
@@ -54,25 +52,31 @@ services:
         value: ${WORD_FILTER_SERVICE_URL}
       - key: ALLOWED_ORIGINS
         value: ${ALLOWED_ORIGINS}
+    ports:
+      - 8081
 
-  - name: word-service
-    type: web
+  - type: web
+    name: word_service
     env: docker
-    build:
-      dockerfilePath: word_filter_service/Dockerfile
+    plan: free
+    dockerfilePath: ./word_filter_service/Dockerfile
+    buildCommand: ""
+    startCommand: ""
     envVars:
-      - key: PORT
-        value: ${PORT}
       - key: ALLOWED_ORIGINS
         value: ${ALLOWED_ORIGINS}
+    ports:
+      - 8082
 
-  - name: image-service
-    type: web
+  - type: web
+    name: image_service
     env: docker
-    build:
-      dockerfilePath: image_check/Dockerfile
+    plan: free
+    dockerfilePath: ./image_check/Dockerfile
+    buildCommand: ""
+    startCommand: ""
     envVars:
-      - key: PORT
-        value: ${PORT}
       - key: ALLOWED_ORIGINS
         value: ${ALLOWED_ORIGINS}
+    ports:
+      - 8083
