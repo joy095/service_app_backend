@@ -1,7 +1,7 @@
 services:
   - type: web
     name: api_gateway
-    env: docker
+    env: ./api_gateway/docker
     plan: free
     dockerfilePath: ./api_gateway/Dockerfile
     envVars:
@@ -14,7 +14,7 @@ services:
 
   - type: web
     name: identity_service
-    env: docker
+    env: ./identity_service/docker
     plan: free
     dockerfilePath: ./identity_service/Dockerfile
     envVars:
@@ -49,7 +49,7 @@ services:
 
   - type: web
     name: word_service
-    env: docker
+    env: ./word_filter_service/docker
     plan: free
     dockerfilePath: ./word_filter_service/Dockerfile
     envVars:
@@ -58,7 +58,7 @@ services:
 
   - type: web
     name: image_service
-    env: docker
+    env: ./image_check/docker
     plan: free
     dockerfilePath: ./image_check/Dockerfile
     envVars:

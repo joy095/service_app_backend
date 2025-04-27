@@ -10,9 +10,9 @@ services:
       - IMAGE_SERVICE_URL=${IMAGE_SERVICE_URL}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
     depends_on:
-      - identity-service
-      - image-service
-      - word-service
+      - identity_service
+      - image_service
+      - word_service
     networks:
       - service_app_network
 
