@@ -1,0 +1,248 @@
+
+###
+get http://localhost:8080/health
+
+###
+get http://localhost:8080/v1/auth/health
+
+###
+get http://localhost:8080/v1/image/health
+
+###
+get http://api-gateway-gdk9.onrender.com/v1/auth/health
+
+###
+get https://identity-service-mnai.onrender.com/health
+
+
+###
+get http://api-gateway-gdk9.onrender.com/v1/auth/health
+
+###
+get https://identity-service-mnai.onrender.com/health
+
+###
+post http://api-gateway-gdk9.onrender.com/v1/auth/login
+Content-Type: application/json
+
+{
+    "username": "test",
+    "password": "1234@Joy"
+}
+
+###
+post https://identity-service-mnai.onrender.com/login
+Content-Type: application/json
+
+{
+    "username": "test",
+    "password": "1234@Joy"
+}
+
+###
+post https://api-gateway-gdk9.onrender.com/v1/auth/login
+Content-Type: application/json
+
+{
+    "username": "test",
+    "password": "1234@Joy"
+}
+
+###
+post https://identity-service-mnai.onrender.com/register
+Content-Type: application/json
+
+{
+    "username": "test",
+    "email": "test@gmail.com",
+    "password": "1234@Joy"
+}
+
+###
+get http://api-gateway-gdk9.onrender.com/v1/auth/health
+
+###
+get http://api-gateway-gdk9.onrender.com/v1/image/health
+
+###
+POST http://api-gateway-gdk9.onrender.com/v1/auth/register
+Content-Type: application/json
+
+{
+    "username": "test",
+    "email": "test@gmail.com",
+    "password": "1234@Joy"
+}
+
+###
+get https://identity-service-mnai.onrender.com/health
+Content-Type: application/json
+
+{
+    "username": "test",
+    "email": "test@gmail.com",
+    "password": "1234@Joy"
+}
+
+
+###
+get http://localhost:8081/health
+
+###
+POST http://localhost:8080/v1/auth/register
+Content-Type: application/json
+
+{
+    "username": "test2",
+    "email": "test@gmail.com",
+    "password": "1234@Joy"
+}
+
+
+###
+POST http://localhost:8080/v1/auth/verify-otp
+Content-Type: application/json
+
+{
+    "email": "sourva55@gmail.com",
+    "otp": "726008"
+}
+
+### 
+POST http://localhost:8080/v1/auth/login
+Content-Type: application/json
+
+{
+    "username": "test",
+    "password": "1234@Joy"
+}
+
+### 
+POST http://localhost:8080/v1/auth/login
+Content-Type: application/json
+
+{
+    "username": "test",
+    "password": "1234@Joy"
+}
+
+
+###
+GET http://localhost:8080/v1/auth/user/test
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUyMTYzMTUsImlhdCI6MTc0NTIxNTQxNSwiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6ImZlMWVlYzljLTk1ZDMtNDJmZC1iNjA5LTg0NzU2YmZlMGI2NSIsIm5iZiI6MTc0NTIxNTQxNSwic3ViIjoiMDE5NjUxZjQtYjA5MS03MzcwLWI1MzQtNTQ0NGFhYmJiMmE0IiwidXNlcl9pZCI6IjAxOTY1MWY0LWIwOTEtNzM3MC1iNTM0LTU0NDRhYWJiYjJhNCJ9.xmMPL469w29MuQTuMAiaV3F7AQBtHhelFug-r-HTv18
+
+###
+POST http://localhost:8080/v1/auth/logout
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUxMzc4MjMsImlhdCI6MTc0NTEzNjkyMywiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6IjczMTc0NmFjLTNjNzAtNDU4ZS1hNTk5LTc2ZWY4YjE1YjEwZCIsIm5iZiI6MTc0NTEzNjkyMywic3ViIjoiMDE5NjUxZjQtZDhjYi03MmQxLWI0ZGQtZjE3M2YzMjI3NDkzIiwidXNlcl9pZCI6IjAxOTY1MWY0LWQ4Y2ItNzJkMS1iNGRkLWYxNzNmMzIyNzQ5MyJ9.K6DzfJZnvInDTY0nko-cPHFfvybPIXGgqB0biTjRpjg
+
+{
+    "user_id": "019651f4-d8cb-72d1-b4dd-f173f3227493"
+}
+
+
+###
+POST http://localhost:8080/v1/auth/relation/request
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUxNjA3ODQsImlhdCI6MTc0NTE1OTg4NCwiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6IjljOTU5OTZlLWZhMmEtNDgwYy1iMjlmLWIxMTdhNTU2YjBjZiIsIm5iZiI6MTc0NTE1OTg4NCwic3ViIjoiMDE5NjUxZjQtZDhjYi03MmQxLWI0ZGQtZjE3M2YzMjI3NDkzIiwidXNlcl9pZCI6IjAxOTY1MWY0LWQ4Y2ItNzJkMS1iNGRkLWYxNzNmMzIyNzQ5MyJ9.pVbzsCPX5SUkZYfIvdxNxOp6SaPvp_qq45eZvWT_hu0
+
+{
+    "addressee_id": "019651f4-b091-7370-b534-5444aabbb2a4"
+}
+
+
+###
+POST http://localhost:8080/v1/auth/relation/accept
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUxNjExNzQsImlhdCI6MTc0NTE2MDI3NCwiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6IjJhNjcyYjU4LTFjZDItNDc3My04OGE1LWYyZGRmZjk1NzlhNiIsIm5iZiI6MTc0NTE2MDI3NCwic3ViIjoiMDE5NjUxZjQtYjA5MS03MzcwLWI1MzQtNTQ0NGFhYmJiMmE0IiwidXNlcl9pZCI6IjAxOTY1MWY0LWIwOTEtNzM3MC1iNTM0LTU0NDRhYWJiYjJhNCJ9.gJLAT68--Fvi0ohx0O-O1mU0_gVb37d23ux9fkxMOGc
+
+{
+    "requester_id": "019651f4-d8cb-72d1-b4dd-f173f3227493"
+}
+
+###
+POST http://localhost:8080/v1/auth/relation/reject
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUxNTk3NzMsImlhdCI6MTc0NTE1ODg3MywiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6ImY3NDM2ZTk5LTI0MjQtNGJmOS1hNGM4LWU4YTA1NDMzMTM4MSIsIm5iZiI6MTc0NTE1ODg3Mywic3ViIjoiMDE5NjUxZjQtZDhjYi03MmQxLWI0ZGQtZjE3M2YzMjI3NDkzIiwidXNlcl9pZCI6IjAxOTY1MWY0LWQ4Y2ItNzJkMS1iNGRkLWYxNzNmMzIyNzQ5MyJ9.QIQP2uhJVjK32UKipTLz9VbfVQug_K2JQbPgGYyBKd0
+
+{
+    "requester_id": "019651f4-b091-7370-b534-5444aabbb2a4"
+}
+
+###
+GET http://localhost:8080/v1/auth/relation/pending
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUxNjA5MzcsImlhdCI6MTc0NTE2MDAzNywiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6IjFhMGYzNzNmLWNlMjItNDc2OC05NTNhLTI5ZmVmZDZhYzRlMCIsIm5iZiI6MTc0NTE2MDAzNywic3ViIjoiMDE5NjUxZjQtYjA5MS03MzcwLWI1MzQtNTQ0NGFhYmJiMmE0IiwidXNlcl9pZCI6IjAxOTY1MWY0LWIwOTEtNzM3MC1iNTM0LTU0NDRhYWJiYjJhNCJ9.WMlQVTceLkOa9yvxJyNoSzISxP65PKjkR5rCh38sxPg
+
+
+###
+GET http://localhost:8080/v1/auth/relation/connections
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUxNjExNzQsImlhdCI6MTc0NTE2MDI3NCwiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6IjJhNjcyYjU4LTFjZDItNDc3My04OGE1LWYyZGRmZjk1NzlhNiIsIm5iZiI6MTc0NTE2MDI3NCwic3ViIjoiMDE5NjUxZjQtYjA5MS03MzcwLWI1MzQtNTQ0NGFhYmJiMmE0IiwidXNlcl9pZCI6IjAxOTY1MWY0LWIwOTEtNzM3MC1iNTM0LTU0NDRhYWJiYjJhNCJ9.gJLAT68--Fvi0ohx0O-O1mU0_gVb37d23ux9fkxMOGc
+
+###
+GET http://localhost:8080/v1/auth/relation/status/test2
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUxNjIxMTEsImlhdCI6MTc0NTE2MTIxMSwiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6ImE4YTkyZTgxLWM1OGEtNDQ4MC1iODg1LTQyYTk4MGVkMWM3MCIsIm5iZiI6MTc0NTE2MTIxMSwic3ViIjoiMDE5NjUxZjQtYjA5MS03MzcwLWI1MzQtNTQ0NGFhYmJiMmE0IiwidXNlcl9pZCI6IjAxOTY1MWY0LWIwOTEtNzM3MC1iNTM0LTU0NDRhYWJiYjJhNCJ9.DGxiytVFmVU6FE26LesZP4Xwlf13Sw7lcJtMnpzFzQU
+
+
+###
+GET http://localhost:8081/user/test2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUxMzAxMDksImlhdCI6MTc0NTEyOTIwOSwiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6ImQ0NDFkMjdkLTcyMTYtNDFiZi1hYmIwLTNlNzhhNzMxYzk2MSIsIm5iZiI6MTc0NTEyOTIwOSwic3ViIjoiMDE5NjQ0ODUtZjYyMi03ZWMxLTk0MDYtNjAwMDMyMzZmMDMzIiwidXNlcl9pZCI6IjAxOTY0NDg1LWY2MjItN2VjMS05NDA2LTYwMDAzMjM2ZjAzMyJ9.0i_YJA96UnAhmpZosnKo_uJzaIcBrtaRdanTdpQyizQ
+
+###
+POST http://localhost:8081/refresh-token
+Content-Type: application/json
+
+
+###
+get http://localhost:8080/v1/auth/user/test
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUxNjIxMTEsImlhdCI6MTc0NTE2MTIxMSwiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6ImE4YTkyZTgxLWM1OGEtNDQ4MC1iODg1LTQyYTk4MGVkMWM3MCIsIm5iZiI6MTc0NTE2MTIxMSwic3ViIjoiMDE5NjUxZjQtYjA5MS03MzcwLWI1MzQtNTQ0NGFhYmJiMmE0IiwidXNlcl9pZCI6IjAxOTY1MWY0LWIwOTEtNzM3MC1iNTM0LTU0NDRhYWJiYjJhNCJ9.DGxiytVFmVU6FE26LesZP4Xwlf13Sw7lcJtMnpzFzQU
+
+###
+POST http://localhost:8080/v1/auth/refresh-token
+Content-Type: application/json
+Refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUwMDE3OTYsImlhdCI6MTc0NDM5Njk5NiwiaXNzIjoiaWRlbnRpdHlfc2VydmljZSIsImp0aSI6ImMyMDNmMTk0LTU5MDYtNGIwNi05MDJkLThhODEzM2Q5ZDM0NiIsIm5iZiI6MTc0NDM5Njk5Niwic3ViIjoiMDE5NjE5YTAtY2JlMC03NWQ1LWI5YWQtNTI1ZjM4MTI2Zjk2IiwidHlwZSI6InJlZnJlc2giLCJ1c2VyX2lkIjoiMDE5NjE5YTAtY2JlMC03NWQ1LWI5YWQtNTI1ZjM4MTI2Zjk2In0.LtRZlB_b-COsUUo1HqWWpGxkDCk6waoIfi7R89OC2ak
+
+###
+POST http://localhost:8081/request-otp
+Content-Type: application/json
+
+{
+    "email": "sourva55@gmail.com"
+}
+
+
+###
+POST http://localhost:8081/verify-otp
+Content-Type: application/json
+
+{
+    "email": "sourva55@gmail.com",
+    "otp": "641938"
+}
+
+
+###
+get http://localhost:8082/health
+
+###
+post http://localhost:8082/check
+Content-Type: application/json
+
+{
+    "text": "hello0"
+}
+
+
+###
+GET http://localhost:8085/ws
+Content-Type: application/json
+
+{
+    "username": "test",
+    "message": "hello"
+}
+

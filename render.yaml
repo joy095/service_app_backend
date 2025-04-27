@@ -1,0 +1,78 @@
+services:
+  - name: api-gateway
+    type: web
+    env: docker
+    build:
+      dockerfilePath: api_gateway/Dockerfile
+    envVars:
+      - key: PORT
+        value: ${PORT}
+      - key: IDENTITY_SERVICE_URL
+        value: ${IDENTITY_SERVICE_URL}
+      - key: IMAGE_SERVICE_URL
+        value: ${IMAGE_SERVICE_URL}
+      - key: ALLOWED_ORIGINS
+        value: ${ALLOWED_ORIGINS}
+    dependsOn:
+      - identity-service
+      - image-service
+      - word-service
+
+  - name: identity-service
+    type: web
+    env: docker
+    build:
+      dockerfilePath: identity_service/Dockerfile
+    envVars:
+      - key: PORT
+        value: ${PORT}
+      - key: DATABASE_URL
+        value: ${DATABASE_URL}
+      - key: REDIS_HOST
+        value: ${REDIS_HOST}
+      - key: REDIS_PASSWORD
+        value: ${REDIS_PASSWORD}
+      - key: JWT_SECRET
+        value: ${JWT_SECRET}
+      - key: JWT_SECRET_REFRESH
+        value: ${JWT_SECRET_REFRESH}
+      - key: JWT_OTP_SECRET
+        value: ${JWT_OTP_SECRET}
+      - key: SMTP_HOST
+        value: ${SMTP_HOST}
+      - key: SMTP_PORT
+        value: ${SMTP_PORT}
+      - key: SMTP_USERNAME
+        value: ${SMTP_USERNAME}
+      - key: SMTP_PASSWORD
+        value: ${SMTP_PASSWORD}
+      - key: FROM_EMAIL
+        value: ${FROM_EMAIL}
+      - key: API_GATEWAY
+        value: ${API_GATEWAY}
+      - key: WORD_FILTER_SERVICE_URL
+        value: ${WORD_FILTER_SERVICE_URL}
+      - key: ALLOWED_ORIGINS
+        value: ${ALLOWED_ORIGINS}
+
+  - name: word-service
+    type: web
+    env: docker
+    build:
+      dockerfilePath: word_filter_service/Dockerfile
+    envVars:
+      - key: PORT
+        value: ${PORT}
+      - key: ALLOWED_ORIGINS
+        value: ${ALLOWED_ORIGINS}
+
+  - name: image-service
+    type: web
+    env: docker
+    build:
+      dockerfilePath: image_check/Dockerfile
+    envVars:
+      - key: PORT
+        value: ${PORT}
+      - key: ALLOWED_ORIGINS
+        value: ${ALLOWED_ORIGINS}
