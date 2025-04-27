@@ -1,66 +1,41 @@
 services:
   - type: web
     name: api_gateway
-    env: ./api_gateway/docker
+    env: docker
     plan: free
     dockerfilePath: ./api_gateway/Dockerfile
     envVars:
-      - key: IDENTITY_SERVICE_URL
-        value: ${IDENTITY_SERVICE_URL}
-      - key: IMAGE_SERVICE_URL
-        value: ${IMAGE_SERVICE_URL}
-      - key: ALLOWED_ORIGINS
-        value: ${ALLOWED_ORIGINS}
+      - fromGroup: service-app-env
 
   - type: web
     name: identity_service
-    env: ./identity_service/docker
+    env: docker
     plan: free
     dockerfilePath: ./identity_service/Dockerfile
     envVars:
-      - key: DATABASE_URL
-        value: ${DATABASE_URL}
-      - key: REDIS_HOST
-        value: ${REDIS_HOST}
-      - key: REDIS_PASSWORD
-        value: ${REDIS_PASSWORD}
-      - key: JWT_SECRET
-        value: ${JWT_SECRET}
-      - key: JWT_SECRET_REFRESH
-        value: ${JWT_SECRET_REFRESH}
-      - key: JWT_OTP_SECRET
-        value: ${JWT_OTP_SECRET}
-      - key: SMTP_HOST
-        value: ${SMTP_HOST}
-      - key: SMTP_PORT
-        value: ${SMTP_PORT}
-      - key: SMTP_USERNAME
-        value: ${SMTP_USERNAME}
-      - key: SMTP_PASSWORD
-        value: ${SMTP_PASSWORD}
-      - key: FROM_EMAIL
-        value: ${FROM_EMAIL}
-      - key: API_GATEWAY
-        value: ${API_GATEWAY}
-      - key: WORD_FILTER_SERVICE_URL
-        value: ${WORD_FILTER_SERVICE_URL}
-      - key: ALLOWED_ORIGINS
-        value: ${ALLOWED_ORIGINS}
+      - fromGroup: service-app-env
+    buildFilter:
+      paths:
+        - identity_service/**
 
   - type: web
     name: word_service
-    env: ./word_filter_service/docker
+    env: docker
     plan: free
     dockerfilePath: ./word_filter_service/Dockerfile
     envVars:
-      - key: ALLOWED_ORIGINS
-        value: ${ALLOWED_ORIGINS}
+      - fromGroup: service-app-env
+    buildFilter:
+      paths:
+        - word_service/**
 
   - type: web
     name: image_service
-    env: ./image_check/docker
+    env: docker
     plan: free
     dockerfilePath: ./image_check/Dockerfile
     envVars:
-      - key: ALLOWED_ORIGINS
-        value: ${ALLOWED_ORIGINS}
+      - fromGroup: service-app-env
+    buildFilter:
+      paths:
+        - word_service/**
