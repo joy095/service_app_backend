@@ -1,7 +1,8 @@
 services:
   api_gateway:
     build:
-      context: ./api_gateway
+      context: .
+      dockerfile: api_gateway/Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -9,15 +10,16 @@ services:
       - IMAGE_SERVICE_URL=${IMAGE_SERVICE_URL}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
     depends_on:
-      - identity_service
-      - image_service
-      - word_service
+      - identity-service
+      - image-service
+      - word-service
     networks:
       - service_app_network
 
   identity_service:
     build:
-      context: ./identity_service
+      context: .
+      dockerfile: identity_service/Dockerfile
     ports:
       - "8081:8081"
     environment:
@@ -40,7 +42,8 @@ services:
 
   word_service:
     build:
-      context: ./word_filter_service
+      context: .
+      dockerfile: word_filter_service/Dockerfile
     ports:
       - "8082:8082"
     environment:
@@ -50,7 +53,8 @@ services:
 
   image_service:
     build:
-      context: ./image_check
+      context: .
+      dockerfile: image_check/Dockerfile
     ports:
       - "8083:8083"
     environment:

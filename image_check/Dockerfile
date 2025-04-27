@@ -1,13 +1,13 @@
-FROM python:3.12-alpine
+FROM python:3.10-slim
 
-WORKDIR /app
+WORKDIR /app/image_check
 
 # Install dependencies
-COPY ./requirements.txt .
+COPY ./image_check/requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy the FastAPI app
-COPY ./app .
+COPY ./image_check/app .
 
 # Expose the FastAPI port
 EXPOSE 8083
