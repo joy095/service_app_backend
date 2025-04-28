@@ -9,7 +9,10 @@ get http://localhost:8080/v1/auth/health
 get http://localhost:8080/v1/image/health
 
 ###
-get http://api-gateway-gdk9.onrender.com/v1/auth/health
+get https://api-gateway-bqmv.onrender.com/health
+
+###
+get https://api-gateway-bqmv.onrender.com/v1/auth/health
 
 ###
 get https://identity-service-mnai.onrender.com/health

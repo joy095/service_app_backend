@@ -3,7 +3,7 @@ services:
     name: api_gateway
     env: docker
     plan: free
-    dockerfilePath: ./api_gateway/Dockerfile
+    dockerfilePath: ./openresty/Dockerfile
     envVars:
       - fromGroup: service-app-env
 
