@@ -15,10 +15,6 @@ get https://api-gateway-e2ij.onrender.com/health
 get https://api-gateway-e2ij.onrender.com/v1/auth/health
 
 ###
-get https://identity-service-mnai.onrender.com/health
-
-
-###
 get http://api-gateway-gdk9.onrender.com/v1/auth/health
 
 ###
