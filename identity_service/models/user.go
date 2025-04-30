@@ -133,6 +133,26 @@ func VerifyPassword(password, storedHash string) (bool, error) {
 	return string(computedHash) == string(expectedHash), nil
 }
 
+func ComparePasswords(db *pgxpool.Pool, password, username string) (bool, error) {
+	logger.InfoLogger.Info("ComparePasswords called on models")
+
+	// Fetch the user from the database
+	user, err := GetUserByUsername(db, username)
+	if err != nil {
+		logger.ErrorLogger.Errorf("user not found: %v", err)
+		return false, err
+	}
+
+	// Verify the provided password against the stored hash
+	valid, err := VerifyPassword(password, user.PasswordHash)
+	if err != nil {
+		logger.ErrorLogger.Errorf("password verification failed: %v", err)
+		return false, err
+	}
+
+	return valid, nil
+}
+
 // GenerateAccessToken creates a JWT token with base64-encoded secret compatibility
 func GenerateAccessToken(userID uuid.UUID, duration time.Duration) (string, error) {
 	now := time.Now()

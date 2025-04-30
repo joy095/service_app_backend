@@ -162,6 +162,113 @@ func (uc *UserController) Login(c *gin.Context) {
 	logger.InfoLogger.Infof("User %s logged in successfully", user.Username)
 }
 
+// Forget Password
+func (uc *UserController) ForgotPassword(c *gin.Context) {
+	logger.InfoLogger.Info("ForgotPassword handler called")
+
+	var req struct {
+		Email    string `json:"email" binding:"required,email"`
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required,min=8"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.ErrorLogger.Error("Invalid forgot password payload: " + err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Check if user exists
+	user, err := models.GetUserByUsername(db.DB, req.Username)
+	if err != nil {
+		logger.ErrorLogger.Error("User not found with email: " + req.Username)
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	if user.Email != req.Email {
+		logger.ErrorLogger.Error("Email does not match the user's email")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email does not match the user's email"})
+		return
+	}
+
+	// Generate secure OTP
+	otp := mail.GenerateSecureOTP()
+
+	// Send OTP via email
+	if err := mail.SendOTP(req.Email, otp); err != nil {
+		logger.ErrorLogger.Error("Failed to send OTP: " + err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send OTP"})
+		return
+	}
+
+	// TODO: Store OTP in Redis or DB with expiry, associate it with user.ID/email
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "OTP sent to email successfully",
+	})
+
+}
+
+// Change Password function
+func (uc *UserController) ChangePassword(c *gin.Context) {
+	logger.InfoLogger.Info("ChangePassword handler called")
+
+	var req struct {
+		Username    string `json:"username" binding:"required"`
+		Password    string `json:"password" binding:"required"`
+		NewPassword string `json:"new_password" binding:"required,min=8"`
+	}
+
+	// Validate request body
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.ErrorLogger.Error("Invalid change password payload: " + err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Fetch user
+	user, err := models.GetUserByUsername(db.DB, req.Username)
+	if err != nil {
+		logger.ErrorLogger.Error("User not found: " + err.Error())
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Compare existing password
+	valid, err := models.ComparePasswords(db.DB, req.Password, req.Username)
+	if err != nil {
+		logger.ErrorLogger.Error("Error comparing passwords: " + err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+
+	if !valid {
+		logger.ErrorLogger.Error("Incorrect username or password")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Incorrect username or password"})
+		return
+	}
+
+	// Hash new password
+	hashedPassword, err := models.HashPassword(req.NewPassword)
+	if err != nil {
+		logger.ErrorLogger.Error("Failed to hash new password: " + err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process new password"})
+		return
+	}
+
+	// Update password in DB
+	_, err = db.DB.Exec(context.Background(), `UPDATE users SET password_hash = $1 WHERE id = $2`, hashedPassword, user.ID)
+	if err != nil {
+		logger.ErrorLogger.Error("Failed to update password in DB: " + err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+		return
+	}
+
+	logger.InfoLogger.Infof("Password changed successfully for user: %s", user.Username)
+	c.JSON(http.StatusOK, gin.H{"message": "Password changed successfully"})
+}
+
 func (uc *UserController) RefreshToken(c *gin.Context) {
 	logger.InfoLogger.Info("RefreshToken token function called")
 

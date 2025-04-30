@@ -137,6 +137,17 @@ Content-Type: application/json
 
 
 ###
+POST http://localhost:8080/v1/auth/change-password
+Content-Type: application/json
+
+{
+    "username": "test11",
+    "password": "test12345",
+    "new_password": "test@1234"
+}
+
+
+###
 GET http://localhost:8080/v1/auth/user/test
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUyMTYzMTUsImlhdCI6MTc0NTIxNTQxNSwiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6ImZlMWVlYzljLTk1ZDMtNDJmZC1iNjA5LTg0NzU2YmZlMGI2NSIsIm5iZiI6MTc0NTIxNTQxNSwic3ViIjoiMDE5NjUxZjQtYjA5MS03MzcwLWI1MzQtNTQ0NGFhYmJiMmE0IiwidXNlcl9pZCI6IjAxOTY1MWY0LWIwOTEtNzM3MC1iNTM0LTU0NDRhYWJiYjJhNCJ9.xmMPL469w29MuQTuMAiaV3F7AQBtHhelFug-r-HTv18
