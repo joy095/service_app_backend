@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/joy095/identity/config"
@@ -79,8 +80,7 @@ func storeOTP(email, otp string) error {
 }
 
 // continue OTP hash comparison...
-
-func SendOTP(emailAddress, otp string) error {
+func SendOTP(emailAddress, firstName, lastName, otp string) error {
 	logger.InfoLogger.Info("SendOTP called on mail")
 
 	var user models.User
@@ -97,18 +97,22 @@ func SendOTP(emailAddress, otp string) error {
 		return err
 	}
 
-	tmpl, err := template.ParseFiles("otp_template.html")
+	tmpl, err := template.ParseFiles("templates/otp_template.html")
 	if err != nil {
 		return err
 	}
 
 	var body bytes.Buffer
 	data := struct {
-		OTP  string
-		Year int
+		FirstName string
+		LastName  string
+		OTP       string
+		Year      int
 	}{
-		OTP:  otp,
-		Year: time.Now().Year(),
+		FirstName: strings.TrimSpace(firstName),
+		LastName:  strings.TrimSpace(lastName),
+		OTP:       otp,
+		Year:      time.Now().Year(),
 	}
 
 	if err := tmpl.Execute(&body, data); err != nil {
@@ -134,12 +138,69 @@ func SendOTP(emailAddress, otp string) error {
 	return email.Send(smtpClient)
 }
 
+func SendForgotPasswordOTP(emailAddress, otp string) error {
+	logger.InfoLogger.Info("SendForgotPasswordOTP called on mail")
+
+	var user models.User
+	query := `SELECT id, email FROM users WHERE email = $1`
+	err := db.DB.QueryRow(context.Background(), query, emailAddress).Scan(&user.ID, &user.Email)
+	if err != nil {
+		return err
+	}
+
+	// Store OTP only in Redis with expiration
+	if err := redisclient.GetRedisClient().Set(context.Background(), "otp:forgot:"+emailAddress, otp, 10*time.Minute).Err(); err != nil {
+		return fmt.Errorf("failed to store OTP in Redis: %w", err)
+	}
+
+	tmpl, err := template.ParseFiles("templates/forgot_password_otp.html")
+	if err != nil {
+		return fmt.Errorf("failed to parse email template: %w", err)
+	}
+
+	var body bytes.Buffer
+	data := struct {
+		FirstName string
+		LastName  string
+		OTP       string
+		Year      int
+	}{
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		OTP:       otp,
+		Year:      time.Now().Year(),
+	}
+
+	if err := tmpl.Execute(&body, data); err != nil {
+		return fmt.Errorf("failed to execute template: %w", err)
+	}
+
+	smtpClient, err := newSMTPClient()
+	if err != nil {
+		logger.ErrorLogger.Errorf("failed to connect to SMTP server: %v", err)
+		return fmt.Errorf("failed to connect to SMTP server: %w", err)
+	}
+	defer smtpClient.Close()
+
+	email := mail.NewMSG()
+	email.SetFrom(os.Getenv("FROM_EMAIL")).
+		AddTo(user.Email).
+		SetSubject("Reset Your Password - OTP").
+		SetBody(mail.TextHTML, body.String())
+
+	logger.InfoLogger.Infof("Sending password reset OTP email to: %s", user.Email)
+
+	return email.Send(smtpClient)
+}
+
 // Request OTP API
 func RequestOTP(c *gin.Context) {
 	logger.InfoLogger.Info("RequestOTP called on mail")
 
 	var request struct {
-		Email string `json:"email"`
+		Email     string `json:"email"`
+		FirstName string `json:"firstName"`
+		LastName  string `json:"lastName"`
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -178,7 +239,7 @@ func RequestOTP(c *gin.Context) {
 		return
 	}
 
-	err = SendOTP(request.Email, otp)
+	err = SendOTP(request.Email, request.FirstName, request.LastName, otp)
 	if err != nil {
 		logger.ErrorLogger.Error("Failed to send OTP")
 

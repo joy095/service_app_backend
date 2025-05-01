@@ -68,19 +68,31 @@ Content-Type: application/json
 }
 
 ###
-get http://api-gateway-gdk9.onrender.com/v1/auth/health
+get https://api-gateway-gdk9.onrender.com/v1/auth/health
 
 ###
-get http://api-gateway-gdk9.onrender.com/v1/image/health
+get https://api-gateway-gdk9.onrender.com/v1/image/health
 
 ###
-POST http://api-gateway-gdk9.onrender.com/v1/auth/register
+POST https://api-gateway-gdk9.onrender.com/v1/auth/register
 Content-Type: application/json
 
 {
     "username": "test",
     "email": "test@gmail.com",
     "password": "1234@Joy"
+}
+
+###
+POST http://localhost:8081/register
+Content-Type: application/json
+
+{
+    "username": "joy10",
+    "email": "sourva55@gmail.com",
+    "password": "1234@Joy",
+    "first_name": "Joy",
+    "last_name": "Karmakar"
 }
 
 ###

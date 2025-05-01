@@ -37,6 +37,8 @@ type User struct {
 	PasswordHash string
 	RefreshToken *string
 	OTPHash      *string
+	FirstName    string
+	LastName     string
 }
 
 // GenerateUUIDv7 generates a new UUIDv7
@@ -232,7 +234,7 @@ func ValidateAccessToken(tokenString string) (*jwt.Token, jwt.MapClaims, error) 
 }
 
 // CreateUser registers a new user and returns JWT & refresh token
-func CreateUser(db *pgxpool.Pool, username, email, password string) (*User, string, string, error) {
+func CreateUser(db *pgxpool.Pool, username, email, password, firstName, lastName string) (*User, string, string, error) {
 	logger.InfoLogger.Info("CreateUser called on models")
 
 	passwordHash, err := HashPassword(password)
@@ -255,9 +257,9 @@ func CreateUser(db *pgxpool.Pool, username, email, password string) (*User, stri
 		return nil, "", "", err
 	}
 
-	query := `INSERT INTO users (id, username, email, password_hash, refresh_token) 
-              VALUES ($1, $2, $3, $4, $5) RETURNING id`
-	_, err = db.Exec(context.Background(), query, userID, username, email, passwordHash, refreshToken)
+	query := `INSERT INTO users (id, username, email, password_hash, refresh_token, first_name, last_name) 
+              VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
+	_, err = db.Exec(context.Background(), query, userID, username, email, passwordHash, refreshToken, firstName, lastName)
 	if err != nil {
 		return nil, "", "", err
 	}
@@ -268,6 +270,8 @@ func CreateUser(db *pgxpool.Pool, username, email, password string) (*User, stri
 		Email:        email,
 		PasswordHash: passwordHash,
 		RefreshToken: &refreshToken,
+		FirstName:    firstName,
+		LastName:     lastName,
 	}
 
 	return user, accessToken, refreshToken, nil

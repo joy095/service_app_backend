@@ -40,9 +40,11 @@ func (uc *UserController) Register(c *gin.Context) {
 	logger.InfoLogger.Info("Register handler called")
 
 	var req struct {
-		Username string `json:"username" binding:"required"`
-		Email    string `json:"email" binding:"required,email"`
-		Password string `json:"password" binding:"required,min=8"`
+		Username  string `json:"username" binding:"required"`
+		FirstName string `json:"first_name" binding:"required"`
+		LastName  string `json:"last_name" binding:"required"`
+		Email     string `json:"email" binding:"required,email"`
+		Password  string `json:"password" binding:"required,min=8"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -98,7 +100,7 @@ func (uc *UserController) Register(c *gin.Context) {
 		return
 	}
 
-	user, accessToken, refreshToken, err := models.CreateUser(db.DB, req.Username, req.Email, req.Password)
+	user, accessToken, refreshToken, err := models.CreateUser(db.DB, req.Username, req.Email, req.Password, req.FirstName, req.LastName)
 	if err != nil {
 		logger.ErrorLogger.Error(err, "Failed to create user")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
@@ -106,15 +108,17 @@ func (uc *UserController) Register(c *gin.Context) {
 	}
 
 	otp := mail.GenerateSecureOTP()
-	mail.SendOTP(req.Email, otp)
+	mail.SendOTP(req.Email, req.FirstName, req.LastName, otp)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User registered successfully",
 		"user": gin.H{
-			"id":       user.ID,
-			"username": user.Username,
-			"email":    user.Email,
-			"otp":      otp,
+			"id":        user.ID,
+			"username":  user.Username,
+			"email":     user.Email,
+			"otp":       otp,
+			"firstName": user.FirstName,
+			"lastName":  user.LastName,
 		},
 		"tokens": gin.H{
 			"access_token":  accessToken,
@@ -196,7 +200,7 @@ func (uc *UserController) ForgotPassword(c *gin.Context) {
 	otp := mail.GenerateSecureOTP()
 
 	// Send OTP via email
-	if err := mail.SendOTP(req.Email, otp); err != nil {
+	if err := mail.SendForgotPasswordOTP(req.Email, otp); err != nil {
 		logger.ErrorLogger.Error("Failed to send OTP: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send OTP"})
 		return
