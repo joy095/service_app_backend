@@ -16,6 +16,7 @@ import (
 
 	"github.com/joy095/identity/logger"
 	"github.com/joy095/identity/utils"
+	"github.com/joy095/identity/utils/custom_date"
 
 	"golang.org/x/crypto/argon2"
 )
@@ -39,6 +40,8 @@ type User struct {
 	OTPHash      *string
 	FirstName    string
 	LastName     string
+	DateOfBirth  custom_date.CustomDate
+	IsVerified   bool
 }
 
 // GenerateUUIDv7 generates a new UUIDv7
@@ -234,7 +237,7 @@ func ValidateAccessToken(tokenString string) (*jwt.Token, jwt.MapClaims, error) 
 }
 
 // CreateUser registers a new user and returns JWT & refresh token
-func CreateUser(db *pgxpool.Pool, username, email, password, firstName, lastName string) (*User, string, string, error) {
+func CreateUser(db *pgxpool.Pool, username, email, password, firstName, lastName string, dateOfBirth time.Time) (*User, string, string, error) {
 	logger.InfoLogger.Info("CreateUser called on models")
 
 	passwordHash, err := HashPassword(password)
@@ -257,9 +260,9 @@ func CreateUser(db *pgxpool.Pool, username, email, password, firstName, lastName
 		return nil, "", "", err
 	}
 
-	query := `INSERT INTO users (id, username, email, password_hash, refresh_token, first_name, last_name) 
-              VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
-	_, err = db.Exec(context.Background(), query, userID, username, email, passwordHash, refreshToken, firstName, lastName)
+	query := `INSERT INTO users (id, username, email, password_hash, refresh_token, first_name, last_name, dob) 
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+	_, err = db.Exec(context.Background(), query, userID, username, email, passwordHash, refreshToken, firstName, lastName, dateOfBirth)
 	if err != nil {
 		return nil, "", "", err
 	}
@@ -272,6 +275,7 @@ func CreateUser(db *pgxpool.Pool, username, email, password, firstName, lastName
 		RefreshToken: &refreshToken,
 		FirstName:    firstName,
 		LastName:     lastName,
+		DateOfBirth:  custom_date.CustomDate{Time: dateOfBirth},
 	}
 
 	return user, accessToken, refreshToken, nil

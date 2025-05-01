@@ -15,6 +15,7 @@ import (
 	"github.com/joy095/identity/logger"
 	"github.com/joy095/identity/models"
 
+	"github.com/joy095/identity/utils/custom_date"
 	"github.com/joy095/identity/utils/mail"
 
 	"github.com/gin-gonic/gin"
@@ -40,11 +41,12 @@ func (uc *UserController) Register(c *gin.Context) {
 	logger.InfoLogger.Info("Register handler called")
 
 	var req struct {
-		Username  string `json:"username" binding:"required"`
-		FirstName string `json:"first_name" binding:"required"`
-		LastName  string `json:"last_name" binding:"required"`
-		Email     string `json:"email" binding:"required,email"`
-		Password  string `json:"password" binding:"required,min=8"`
+		Username    string                 `json:"username" binding:"required"`
+		FirstName   string                 `json:"first_name" binding:"required"`
+		LastName    string                 `json:"last_name" binding:"required"`
+		Email       string                 `json:"email" binding:"required,email"`
+		Password    string                 `json:"password" binding:"required,min=8"`
+		DateOfBirth custom_date.CustomDate `json:"date_of_birth" binding:"required"` // Expecting format "2000-05-01"
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -100,7 +102,7 @@ func (uc *UserController) Register(c *gin.Context) {
 		return
 	}
 
-	user, accessToken, refreshToken, err := models.CreateUser(db.DB, req.Username, req.Email, req.Password, req.FirstName, req.LastName)
+	user, accessToken, refreshToken, err := models.CreateUser(db.DB, req.Username, req.Email, req.Password, req.FirstName, req.LastName, req.DateOfBirth.Time)
 	if err != nil {
 		logger.ErrorLogger.Error(err, "Failed to create user")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
@@ -119,6 +121,7 @@ func (uc *UserController) Register(c *gin.Context) {
 			"otp":       otp,
 			"firstName": user.FirstName,
 			"lastName":  user.LastName,
+			"DOB":       user.DateOfBirth,
 		},
 		"tokens": gin.H{
 			"access_token":  accessToken,

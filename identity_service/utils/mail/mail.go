@@ -20,7 +20,6 @@ import (
 	"github.com/joy095/identity/logger"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	redisclient "github.com/joy095/identity/config/redis"
 	mail "github.com/xhit/go-simple-mail/v2"
 	"golang.org/x/crypto/argon2"
@@ -257,8 +256,9 @@ func VerifyOTP(c *gin.Context) {
 	logger.InfoLogger.Info("VerifyOTP called on mail")
 
 	var request struct {
-		Email string `json:"email"`
-		OTP   string `json:"otp"`
+		Email    string `json:"email"`
+		OTP      string `json:"otp"`
+		Username string `json:"username"`
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -267,6 +267,7 @@ func VerifyOTP(c *gin.Context) {
 		return
 	}
 
+	request.Email = strings.ToLower(strings.TrimSpace(request.Email))
 	if request.Email == "" || request.OTP == "" {
 		logger.ErrorLogger.Error("Email and OTP are required")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email and OTP are required"})
@@ -288,26 +289,24 @@ func VerifyOTP(c *gin.Context) {
 		return
 	}
 
-	// Generate access token (valid for 1 hour)
-	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": request.Email,
-		"exp":   time.Now().Add(1 * time.Hour).Unix(),
-		"type":  "access",
-	}).SignedString(jwtSecret)
+	// Get user by email to retrieve userID
+	user, err := models.GetUserByUsername(db.DB, request.Username)
+	if err != nil {
+		logger.ErrorLogger.Errorf("User not found: %v", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
 
+	// Generate access token (15 minutes)
+	accessToken, err := models.GenerateAccessToken(user.ID, 15*time.Minute)
 	if err != nil {
 		logger.ErrorLogger.Error("Failed to generate access token")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
 		return
 	}
 
-	// Generate refresh token (valid for 7 days)
-	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": request.Email,
-		"exp":   time.Now().Add(168 * time.Hour).Unix(),
-		"type":  "refresh",
-	}).SignedString(jwtSecret)
-
+	// Generate refresh token (7 days)
+	refreshToken, err := models.GenerateRefreshToken(user.ID, 7*24*time.Hour)
 	if err != nil {
 		logger.ErrorLogger.Error("Failed to generate refresh token")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate refresh token"})
@@ -315,20 +314,22 @@ func VerifyOTP(c *gin.Context) {
 	}
 
 	// Store refresh token in Redis
-	err = redisclient.GetRedisClient().Set(ctx, "refresh:"+request.Email, refreshToken, 168*time.Hour).Err()
+	err = redisclient.GetRedisClient().Set(ctx, "refresh:"+request.Email, refreshToken, 7*24*time.Hour).Err()
 	if err != nil {
 		logger.ErrorLogger.Error("Failed to store refresh token")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store refresh token"})
 		return
 	}
 
-	// Delete OTP from Redis
-	redisclient.GetRedisClient().Del(ctx, "otp:"+request.Email)
+	// Delete OTP from Redis after successful verification
+	if err := redisclient.GetRedisClient().Del(ctx, "otp:"+request.Email).Err(); err != nil {
+		logger.ErrorLogger.Error("Failed to delete OTP from Redis")
+	}
 
-	// Update user's email verification status and refresh token in PostgreSQL
+	// Update user's email verification and refresh token in DB
 	_, err = db.DB.Exec(context.Background(),
-		"UPDATE users SET is_verified_email = true, refresh_token = $1 WHERE email = $2",
-		refreshToken, request.Email)
+		"UPDATE users SET is_verified_email = true, refresh_token = $1 WHERE email = $2 AND username = $3",
+		refreshToken, request.Email, request.Username)
 	if err != nil {
 		logger.ErrorLogger.Error("Failed to update user data")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user data"})

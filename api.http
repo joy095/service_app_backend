@@ -88,11 +88,12 @@ POST http://localhost:8081/register
 Content-Type: application/json
 
 {
-    "username": "joy10",
+    "username": "joy",
     "email": "sourva55@gmail.com",
     "password": "1234@Joy",
     "first_name": "Joy",
-    "last_name": "Karmakar"
+    "last_name": "Karmakar",
+    "date_of_birth": "1999-10-22"
 }
 
 ###
@@ -126,15 +127,15 @@ Content-Type: application/json
 
 {
     "email": "sourva55@gmail.com",
-    "otp": "726008"
+    "otp": "027109"
 }
 
 ### 
-POST http://localhost:8080/v1/auth/login
+POST http://localhost:8081/login
 Content-Type: application/json
 
 {
-    "username": "test",
+    "username": "joy9",
     "password": "1234@Joy"
 }
 
@@ -160,9 +161,9 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:8080/v1/auth/user/test
+GET http://localhost:8081/user/joy2
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUyMTYzMTUsImlhdCI6MTc0NTIxNTQxNSwiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6ImZlMWVlYzljLTk1ZDMtNDJmZC1iNjA5LTg0NzU2YmZlMGI2NSIsIm5iZiI6MTc0NTIxNTQxNSwic3ViIjoiMDE5NjUxZjQtYjA5MS03MzcwLWI1MzQtNTQ0NGFhYmJiMmE0IiwidXNlcl9pZCI6IjAxOTY1MWY0LWIwOTEtNzM3MC1iNTM0LTU0NDRhYWJiYjJhNCJ9.xmMPL469w29MuQTuMAiaV3F7AQBtHhelFug-r-HTv18
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDYxMTU0NTEsImlhdCI6MTc0NjExNDU1MSwiaXNzIjoiaWRlbnRpdHktc2VydmljZSIsImp0aSI6ImM4ZTUwODBhLThhNGQtNGQ0ZC04ZmI2LTU2MzJhZTYzMGMxNCIsIm5iZiI6MTc0NjExNDU1MSwic3ViIjoiMDE5NjhjODgtNDA0ZC03MWNiLWI1ODctMTVhMWIxYjc4YzRiIiwidXNlcl9pZCI6IjAxOTY4Yzg4LTQwNGQtNzFjYi1iNTg3LTE1YTFiMWI3OGM0YiJ9.1jjRtGrhioL2rRVZPXN1zFM_qyTOAQe9ai57TICvAxI
 
 ###
 POST http://localhost:8080/v1/auth/logout
@@ -252,8 +253,9 @@ POST http://localhost:8081/verify-otp
 Content-Type: application/json
 
 {
+    "username": "joy",
     "email": "sourva55@gmail.com",
-    "otp": "641938"
+    "otp": "338735"
 }
 
 

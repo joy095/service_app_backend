@@ -17,10 +17,10 @@ import (
 // AuthMiddleware checks the authentication of the request using JWT token.
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Parse and validate JWT token using the ParseJWTToken function
+		logger.InfoLogger.Info("AuthMiddleware called")
+
 		jwt_parse.ParseJWTToken()(c)
 
-		// Retrieve user_id from the context (set by ParseJWTToken)
 		userIDFromToken, exists := c.Get("user_id")
 		if !exists {
 			logger.ErrorLogger.Error("User ID not found in context")
@@ -30,53 +30,64 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		usernameParam := c.Param("username")
-		// Check if the user_id from the token matches the username parameter
 		rawBody, _ := c.GetRawData()
-		c.Request.Body = io.NopCloser(bytes.NewBuffer(rawBody)) // allow re-reading
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(rawBody))
 
 		var body struct {
 			UserID string `json:"user_id"`
 		}
 		json.Unmarshal(rawBody, &body)
 
-		if usernameParam == "" && body.UserID == "" {
-			logger.ErrorLogger.Error("Either 'username' param or 'user_id' in body is required")
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Either 'username' param or 'user_id' in body is required"})
-			c.Abort()
-			return
-		}
+		var user *models.User
+		var err error
 
-		// If username is provided, fetch user and match token user_id
+		// Fetch user based on provided param or body
 		if usernameParam != "" {
-			user, err := models.GetUserByUsername(db.DB, usernameParam)
+			user, err = models.GetUserByUsername(db.DB, usernameParam)
 			if err != nil {
-				logger.ErrorLogger.Errorf("User not found by username: %s", usernameParam)
+				logger.ErrorLogger.Errorf("User not found: %v", err)
 				c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 				c.Abort()
 				return
 			}
-
 			if user.ID.String() != userIDFromToken {
 				logger.ErrorLogger.Errorf("User ID mismatch: token(%s) vs db(%s)", userIDFromToken, user.ID)
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized access"})
 				c.Abort()
 				return
 			}
-
-			logger.InfoLogger.Infof("Authenticated via username: %s", user.Username)
-		}
-
-		// If user_id from body is provided, ensure it matches token
-		if body.UserID != "" && body.UserID != userIDFromToken {
-			logger.ErrorLogger.Errorf("User ID mismatch: token(%s) vs body(%s)", userIDFromToken, body.UserID)
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized access"})
+		} else if body.UserID != "" {
+			if body.UserID != userIDFromToken {
+				logger.ErrorLogger.Errorf("User ID mismatch: token(%s) vs body(%s)", userIDFromToken, body.UserID)
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized access"})
+				c.Abort()
+				return
+			}
+			user, err = models.GetUserByID(db.DB, body.UserID)
+			if err != nil {
+				logger.ErrorLogger.Errorf("User not found: %v", err)
+				c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+				c.Abort()
+				return
+			}
+		} else {
+			logger.ErrorLogger.Error("Either 'username' param or 'user_id' in body is required")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Either 'username' param or 'user_id' in body is required"})
 			c.Abort()
 			return
 		}
 
-		// Attach user_id to context for downstream handlers
+		// ✅ Check if user is verified
+		if !user.IsVerified {
+			logger.ErrorLogger.Errorf("User is not verified: %s", user.ID)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Email not verified"})
+			c.Abort()
+			return
+		}
+
+		// Pass user_id along
 		c.Set("user_id", userIDFromToken)
-		logger.InfoLogger.Infof("Authenticated user_id: %s", userIDFromToken)
+		logger.InfoLogger.Infof("Authenticated & verified user_id: %s", userIDFromToken)
 		c.Next()
 	}
 }
