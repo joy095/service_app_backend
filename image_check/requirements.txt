@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+python-multipart
 pillow
 nudenet
-python-multipart
+confluent-kafka

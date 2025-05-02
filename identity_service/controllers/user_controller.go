@@ -102,7 +102,7 @@ func (uc *UserController) Register(c *gin.Context) {
 		return
 	}
 
-	user, accessToken, refreshToken, err := models.CreateUser(db.DB, req.Username, req.Email, req.Password, req.FirstName, req.LastName, req.DateOfBirth.Time)
+	user, _, _, err := models.CreateUser(db.DB, req.Username, req.Email, req.Password, req.FirstName, req.LastName, req.DateOfBirth.Time)
 	if err != nil {
 		logger.ErrorLogger.Error(err, "Failed to create user")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
@@ -122,10 +122,6 @@ func (uc *UserController) Register(c *gin.Context) {
 			"firstName": user.FirstName,
 			"lastName":  user.LastName,
 			"DOB":       user.DateOfBirth,
-		},
-		"tokens": gin.H{
-			"access_token":  accessToken,
-			"refresh_token": refreshToken,
 		},
 	})
 
@@ -201,6 +197,13 @@ func (uc *UserController) ForgotPassword(c *gin.Context) {
 
 	// Generate secure OTP
 	otp := mail.GenerateSecureOTP()
+
+	err = mail.StoreOTP(req.Username+"-"+req.Email, otp)
+	if err != nil {
+		logger.ErrorLogger.Error("Failed to store OTP")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store OTP"})
+		return
+	}
 
 	// Send OTP via email
 	if err := mail.SendForgotPasswordOTP(req.Email, otp); err != nil {

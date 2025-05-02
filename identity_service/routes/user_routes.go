@@ -16,7 +16,10 @@ func RegisterRoutes(router *gin.Engine) {
 	router.POST("/register", userController.Register)
 	router.POST("/login", userController.Login)
 	router.POST("/refresh-token", userController.RefreshToken)
+
 	router.POST("/forgot-password", userController.ForgotPassword)
+	router.POST("/forgot-password-otp", mail.VerifyForgotPasswordOTP)
+
 	router.POST("/change-password", userController.ChangePassword)
 
 	router.POST("/request-otp", mail.RequestOTP)

@@ -135,8 +135,8 @@ POST http://localhost:8081/login
 Content-Type: application/json
 
 {
-    "username": "joy9",
-    "password": "1234@Joy"
+    "username": "joy",
+    "password": "51s12saas211221"
 }
 
 ### 
@@ -278,5 +278,29 @@ Content-Type: application/json
 {
     "username": "test",
     "message": "hello"
+}
+
+
+###
+POST http://localhost:8081/forgot-password
+Content-Type: application/json
+
+{
+    "username": "joy",
+    "email": "sourva55@gmail.com",
+    "password": "51s12saas211221"
+}
+
+
+
+###
+POST http://localhost:8081/forgot-password-otp
+Content-Type: application/json
+
+{
+    "username": "joy",
+    "email": "sourva55@gmail.com",
+    "otp": "892340",
+    "new_password": "51s12saas211221"
 }
 

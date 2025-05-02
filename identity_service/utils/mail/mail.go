@@ -73,7 +73,7 @@ func hashOTP(otp string) string {
 }
 
 // Store OTP hash in Redis with expiration
-func storeOTP(email, otp string) error {
+func StoreOTP(email, otp string) error {
 	hashedOTP := hashOTP(otp)
 	return redisclient.GetRedisClient().Set(context.Background(), "otp:"+email, hashedOTP, 10*time.Minute).Err()
 }
@@ -92,7 +92,7 @@ func SendOTP(emailAddress, firstName, lastName, otp string) error {
 	}
 
 	// Store OTP before sending email
-	if err := storeOTP(emailAddress, otp); err != nil {
+	if err := StoreOTP(emailAddress, otp); err != nil {
 		return err
 	}
 
@@ -145,11 +145,6 @@ func SendForgotPasswordOTP(emailAddress, otp string) error {
 	err := db.DB.QueryRow(context.Background(), query, emailAddress).Scan(&user.ID, &user.Email)
 	if err != nil {
 		return err
-	}
-
-	// Store OTP only in Redis with expiration
-	if err := redisclient.GetRedisClient().Set(context.Background(), "otp:forgot:"+emailAddress, otp, 10*time.Minute).Err(); err != nil {
-		return fmt.Errorf("failed to store OTP in Redis: %w", err)
 	}
 
 	tmpl, err := template.ParseFiles("templates/forgot_password_otp.html")
@@ -231,7 +226,7 @@ func RequestOTP(c *gin.Context) {
 	}
 
 	otp := GenerateSecureOTP()
-	err = storeOTP(request.Email, otp)
+	err = StoreOTP(request.Email, otp)
 	if err != nil {
 		logger.ErrorLogger.Error("Failed to store OTP")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store OTP"})
@@ -342,5 +337,76 @@ func VerifyOTP(c *gin.Context) {
 		"message":       "Email verified successfully",
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
+	})
+}
+
+// VerifyForgotPasswordOTP
+func VerifyForgotPasswordOTP(c *gin.Context) {
+	logger.InfoLogger.Info("VerifyForgotPasswordOTP called")
+
+	var request struct {
+		Email       string `json:"email" binding:"required,email"`
+		OTP         string `json:"otp" binding:"required"`
+		NewPassword string `json:"new_password" binding:"required,min=8"`
+		Username    string `json:"username" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		logger.ErrorLogger.Error("Invalid request")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	request.Email = strings.ToLower(strings.TrimSpace(request.Email))
+
+	// Retrieve OTP hash from Redis
+	storedHash, err := redisclient.GetRedisClient().Get(ctx, "otp:"+request.Username+"-"+request.Email).Result()
+	if err != nil {
+		logger.ErrorLogger.Error("OTP expired or not found")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "OTP expired or not found"})
+		return
+	}
+
+	// Verify OTP
+	if hashOTP(request.OTP) != storedHash {
+		logger.ErrorLogger.Error("Incorrect OTP")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Incorrect OTP"})
+		return
+	}
+
+	// Get user
+	user, err := models.GetUserByUsername(db.DB, request.Username)
+	if err != nil || user.Email != request.Email {
+		logger.ErrorLogger.Error("User not found or email mismatch")
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found or email mismatch"})
+		return
+	}
+
+	// Hash the new password
+	hashedPassword, err := models.HashPassword(request.NewPassword)
+	if err != nil {
+		logger.ErrorLogger.Error("Failed to hash password")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
+
+	// Update user's password
+	_, err = db.DB.Exec(ctx, "UPDATE users SET password_hash = $1 WHERE id = $2", hashedPassword, user.ID)
+	if err != nil {
+		logger.ErrorLogger.Error("Failed to update password" + err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+
+		return
+	}
+
+	// Delete OTP from Redis
+	if err := redisclient.GetRedisClient().Del(ctx, "otp:"+request.Username+"-"+request.Email).Err(); err != nil {
+		logger.ErrorLogger.Warn("Failed to delete OTP after use")
+	}
+
+	logger.InfoLogger.Info("Password reset successful")
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Password reset successful",
 	})
 }
